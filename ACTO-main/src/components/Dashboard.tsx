@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 import { Deadline, AgentAction, ConnectedAccount, UserPreferences } from "../types";
 
@@ -92,12 +93,69 @@ export default function Dashboard() {
   const [typedBody, setTypedBody] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
+  // New Agentic States
+  const [isAutopilot, setIsAutopilot] = useState(false);
+  const [geminiStatus, setGeminiStatus] = useState<string>("checking");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatTyping, setIsChatTyping] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'agent', text: string, time: string }>>([
+    { sender: 'agent', text: 'System initialized. ACTO autonomous workspace scanner ready. Type command or query active targets.', time: '12:00 AM' }
+  ]);
+
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
   };
+
+  const handleChatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    
+    const userMsg = chatInput;
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChatMessages(prev => [...prev, { sender: 'user', text: userMsg, time: timeStr }]);
+    setChatInput("");
+    setIsChatTyping(true);
+
+    setTimeout(() => {
+      let reply = "Utterance processed. Searching contextual database...";
+      const normalized = userMsg.toLowerCase();
+      if (normalized.includes("threat") || normalized.includes("urgency") || normalized.includes("deadline")) {
+        const activeCount = deadlines.filter(d => d.status === 'active').length;
+        const criticalCount = deadlines.filter(d => d.urgencyScore > 85 && d.status === 'active').length;
+        reply = `Active threat feed analysis complete. Portal registers ${activeCount} active targets, including ${criticalCount} critical SLA breaches. Recommended tactic: Auto-schedule Focus Block.`;
+      } else if (normalized.includes("autopilot")) {
+        reply = "Autopilot routing checks state constraints. When enabled, email defenses and SLA mitigations are dispatched instantly without manual audit.";
+      } else if (normalized.includes("reschedule") || normalized.includes("calendar")) {
+        reply = "Awaiting calendar authorization tokens. Google Calendar Shield Block is fully synced. I can insert a 2-hour protection slot for your active target.";
+      } else if (normalized.includes("hello") || normalized.includes("hi")) {
+        reply = `Greetings ${preferences.name || 'User'}. I am the ACTO Agent. You can query target feeds or ask me to draft/dispatch emails.`;
+      } else {
+        reply = `Intent recognized. Triggering agentic reasoning model: "Generate self-healing resolution draft for ${selectedDeadline?.title || 'impending targets'}". Ready to verify.`;
+      }
+      setChatMessages(prev => [...prev, { sender: 'agent', text: reply, time: timeStr }]);
+      setIsChatTyping(false);
+      setLogs(prev => [
+        { time: timeStr, desc: `[AGENT ASSISTANT] Processed user query: "${userMsg}"` },
+        ...prev
+      ]);
+    }, 1200);
+  };
+
+  // Autopilot Effect: Automatically executes generated actions if Autopilot is enabled
+  useEffect(() => {
+    if (isAutopilot && currentAction && currentAction.status !== "executing" && currentAction.status !== "executed") {
+      const autoTimer = setTimeout(() => {
+        showToast("⚡ Autopilot: Automatically dispatching action...");
+        handleExecuteAction(currentAction.id);
+      }, 1500);
+      return () => clearTimeout(autoTimer);
+    }
+  }, [isAutopilot, currentAction]);
+
 
   const triggerConfetti = () => {
     setConfettiActive(true);
@@ -142,6 +200,10 @@ export default function Dashboard() {
       const pRes = await fetch("/api/preferences");
       const pData = await pRes.json();
       setPreferences(pData);
+
+      const hRes = await fetch("/api/health");
+      const hData = await hRes.json();
+      setGeminiStatus(hData.gemini || "disabled");
     } catch (err) {
       console.error("Error fetching data:", err);
     }
@@ -510,7 +572,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-[#F1F0FF] flex flex-col md:flex-row font-sans overflow-hidden selection:bg-[#7C5CFC]/30 bg-grid-blueprint relative">
+    <div className="h-screen w-screen bg-[#0A0A0F] text-[#F1F0FF] flex flex-col md:flex-row font-sans overflow-hidden selection:bg-[#7C5CFC]/30 bg-grid-blueprint relative">
       
       {/* Background Particles (Same as Landing Page) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -552,7 +614,7 @@ export default function Dashboard() {
       <div className="custom-orb right-1/4 bottom-1/4 translate-x-1/2 pointer-events-none z-0 opacity-40 animate-[pulse_6s_infinite]" />
 
       {/* High-Density Side Menu */}
-      <aside className="w-full md:w-60 bg-[#0E0E15]/95 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/5 p-4 flex flex-col justify-between shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.15)]">
+      <aside className="w-full md:w-64 glass-card border-b md:border-b-0 md:border-r border-white/5 p-4 flex flex-col justify-between shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.15)]">
         <div className="space-y-6">
           <div className="flex items-center justify-between gap-1">
             <div 
@@ -607,22 +669,33 @@ export default function Dashboard() {
           </nav>
         </div>
 
-        {/* User Info Capsule */}
-        <div 
-          onClick={handleProfileCapsuleClick}
-          className="pt-4 border-t border-white/5 flex items-center gap-2.5 cursor-pointer hover:bg-white/[0.04] p-1.5 rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5 active:scale-95"
-          title="Edit Profile Configuration (Arjun Mehta)"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] flex items-center justify-center font-bold text-xs text-[#0A0A0F] shadow-[0_0_10px_rgba(124,92,252,0.2)] group-hover:shadow-[0_0_15px_rgba(20,241,217,0.4)] transition-all duration-200">
-            {preferences.name ? preferences.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "AM"}
-          </div>
-          <div className="text-left overflow-hidden flex-1">
-            <div className="text-xs font-semibold truncate text-[#F1F0FF] group-hover:text-[#14F1D9] transition-colors duration-200">
-              {preferences.name}
+        {/* User Info & Logout Area */}
+        <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-1.5 p-1">
+          <div 
+            onClick={handleProfileCapsuleClick}
+            className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.04] p-1.5 rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5 active:scale-95 flex-1 min-w-0"
+            title="Edit Profile Configuration (Arjun Mehta)"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] flex items-center justify-center font-bold text-xs text-[#0A0A0F] shadow-[0_0_10px_rgba(124,92,252,0.2)] group-hover:shadow-[0_0_15px_rgba(20,241,217,0.4)] transition-all duration-200 shrink-0">
+              {preferences.name ? preferences.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "AM"}
             </div>
-            <div className="text-[10px] text-[#9CA3AF] truncate">{preferences.email}</div>
+            <div className="text-left overflow-hidden flex-1">
+              <div className="text-xs font-semibold truncate text-[#F1F0FF] group-hover:text-[#14F1D9] transition-colors duration-200">
+                {preferences.name}
+              </div>
+              <div className="text-[10px] text-[#9CA3AF] truncate">{preferences.email}</div>
+            </div>
           </div>
-          <span className="text-[10px] text-[#9CA3AF]/60 group-hover:text-white transition-colors">⚙️</span>
+          <button
+            onClick={() => {
+              navigate("/login");
+              showToast("👋 Signed out successfully.");
+            }}
+            className="w-8 h-8 rounded-xl border border-white/10 flex items-center justify-center bg-white/5 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
+            title="Logout / Sign Out"
+          >
+            <LogOut size={13} className="text-[#9CA3AF] hover:text-red-400" />
+          </button>
         </div>
       </aside>
 
@@ -646,6 +719,56 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* New Autopilot Switch Toggle */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.03] border border-white/10 rounded-xl shadow-inner">
+              <span className={`w-1.5 h-1.5 rounded-full ${isAutopilot ? 'bg-[#14F1D9] animate-pulse pulse-glow-cyan' : 'bg-[#EF4444]'}`} />
+              <span className="text-[9px] font-mono font-extrabold text-white uppercase tracking-wider">
+                {isAutopilot ? 'Autopilot: ON' : 'Pilot: Manual'}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAutopilot(!isAutopilot);
+                  showToast(!isAutopilot ? "⚡ AGENT AUTOPILOT ENGAGED" : "⚠️ PILOT MODE: Manual Approvals Active");
+                  setLogs(prev => [
+                    { time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), desc: !isAutopilot ? "[SYSTEM] Autopilot mode enabled globally." : "[SYSTEM] Autopilot mode disabled. Manual signoffs required." },
+                    ...prev
+                  ]);
+                }}
+                className={`w-8 h-4 rounded-full transition-all relative cursor-pointer ${isAutopilot ? 'bg-[#14F1D9]' : 'bg-white/10'}`}
+                title={isAutopilot ? "Disable Autopilot" : "Enable Autopilot"}
+              >
+                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-[#0A0A0F] transition-all ${isAutopilot ? 'right-0.5' : 'left-0.5'}`} />
+              </button>
+            </div>
+
+            {/* Gemini API Status Badge */}
+            <div 
+              className="flex items-center gap-2 px-3 py-1 bg-white/[0.03] border border-white/10 rounded-xl shadow-inner cursor-help"
+              title={
+                geminiStatus === 'active' 
+                  ? "Gemini API is active and running fine."
+                  : geminiStatus === 'quota_exceeded'
+                  ? "Gemini API key is connected, but the daily free quota has been exhausted. ACTO is running on the local intelligent offline engine."
+                  : "Using simulated API mode."
+              }
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                geminiStatus === 'active' 
+                  ? 'bg-[#14F1D9] animate-pulse' 
+                  : geminiStatus === 'quota_exceeded'
+                  ? 'bg-amber-400 animate-pulse'
+                  : 'bg-red-400'
+              }`} />
+              <span className="text-[9px] font-mono font-extrabold text-white uppercase tracking-wider">
+                {geminiStatus === 'active' 
+                  ? 'Gemini: Active' 
+                  : geminiStatus === 'quota_exceeded'
+                  ? 'Gemini: Quota Limit (Offline Fallback)'
+                  : 'Gemini: Simulator'}
+              </span>
+            </div>
+
             {/* Theme Toggle Button */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -658,7 +781,7 @@ export default function Dashboard() {
             {activeTab === 'feed' && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-3 py-1.5 bg-[#7C5CFC]/20 hover:bg-[#7C5CFC]/30 text-[#A78BFA] border border-[#7C5CFC]/30 rounded-lg text-[11px] font-bold transition-all transform active:scale-95 flex items-center gap-1"
+                className="px-3 py-1.5 bg-[#7C5CFC]/20 hover:bg-[#7C5CFC]/30 text-[#A78BFA] border border-[#7C5CFC]/30 rounded-lg text-[11px] font-bold transition-all transform active:scale-95 flex items-center gap-1 cursor-pointer"
               >
                 <span>➕</span> Create Deadline Target
               </button>
@@ -670,11 +793,11 @@ export default function Dashboard() {
         {activeTab === 'feed' && (
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
             
-            {/* PANE 1: Compact Master Deadline List (lg:col-span-4) */}
-            <div className="lg:col-span-4 flex flex-col min-h-0 bg-[#0D0D14]/30 overflow-y-auto p-4 space-y-3">
+            {/* PANE 1: Compact Master Deadline List (lg:col-span-3) */}
+            <div className="lg:col-span-3 flex flex-col min-h-0 bg-[#0D0D14]/30 overflow-y-auto p-4 space-y-3 scrollbar-thin">
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                <span className="text-[10px] font-mono uppercase text-[#9CA3AF] tracking-wider">Deadlines Feed ({deadlines.length})</span>
-                <span className="text-[10px] text-[#14F1D9] font-mono">Sorted by Urgency</span>
+                <span className="text-[10px] font-mono uppercase text-[#9CA3AF] tracking-wider font-bold">Deadlines Feed ({deadlines.length})</span>
+                <span className="text-[10px] text-[#14F1D9] font-mono font-bold">Sorted by Urgency</span>
               </div>
 
               {/* Critical Threat Pulse/Glow Banner */}
@@ -786,17 +909,17 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* PANE 2: Inline Active Suggestion Editor (lg:col-span-5) */}
-            <div className="lg:col-span-5 flex flex-col min-h-0 bg-[#0A0A0F] overflow-y-auto p-4">
+            {/* PANE 2: Inline Active Suggestion Editor (lg:col-span-6) */}
+            <div className="lg:col-span-6 flex flex-col min-h-0 bg-[#0A0A0F]/20 overflow-y-auto p-4 scrollbar-thin">
               {selectedDeadline ? (
                 <div className="space-y-4">
                   {/* Selected Item header */}
                   <div className="pb-3 border-b border-white/5 flex items-center justify-between gap-4">
                     <div>
-                      <span className="text-[10px] font-mono text-[#9CA3AF] uppercase">Currently Selected Target</span>
+                      <span className="text-[10px] font-mono text-[#9CA3AF] uppercase font-bold">Currently Selected Target</span>
                       <h3 className="text-base font-bold font-display text-white">{selectedDeadline.title}</h3>
                     </div>
-                    <span className="text-[10px] text-[#14F1D9] bg-[#14F1D9]/10 px-2 py-0.5 rounded font-mono shrink-0">
+                    <span className="text-[10px] text-[#14F1D9] bg-[#14F1D9]/10 px-2 py-0.5 rounded font-mono shrink-0 font-bold">
                       Score: {selectedDeadline.urgencyScore}%
                     </span>
                   </div>
@@ -854,6 +977,40 @@ export default function Dashboard() {
                     </div>
                   ) : currentAction ? (
                     <div className="space-y-5">
+                      {/* New Visual Telemetry Node Workflow */}
+                      <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl space-y-2.5">
+                        <span className="text-[9px] font-mono font-bold text-[#9CA3AF] uppercase tracking-wider block text-left">Agent Decisional Telemetry</span>
+                        <div className="flex items-center justify-between gap-1 text-[9px] font-mono">
+                          {[
+                            { label: "Feed Ingestion", status: "done" },
+                            { label: "NLP Policy Audit", status: currentAction ? "done" : "active" },
+                            { label: "Tactic Selection", status: currentAction ? "done" : "pending" },
+                            { label: "Response Drafting", status: currentAction && !isSuggesting ? "done" : isSuggesting ? "active" : "pending" },
+                            { label: "SLA Mitigation Dispatch", status: selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered' ? "done" : "pending" }
+                          ].map((step, idx, arr) => (
+                            <React.Fragment key={idx}>
+                              <div className="flex flex-col items-center gap-1 flex-1">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[9px] ${
+                                  step.status === 'done'
+                                    ? "bg-[#14F1D9] text-[#0A0A0F] shadow-[0_0_8px_rgba(20,241,217,0.4)]"
+                                    : step.status === 'active'
+                                    ? "bg-[#7C5CFC] text-white animate-pulse"
+                                    : "bg-white/5 text-[#9CA3AF]"
+                                }`}>
+                                  {step.status === 'done' ? "✓" : idx + 1}
+                                </div>
+                                <span className={`text-[7px] md:text-[8px] text-center font-semibold scale-90 ${
+                                  step.status === 'done' ? "text-white" : step.status === 'active' ? "text-[#7C5CFC]" : "text-[#4B5563]"
+                                }`}>{step.label}</span>
+                              </div>
+                              {idx < arr.length - 1 && (
+                                <div className={`h-[1px] flex-1 ${step.status === 'done' ? 'bg-[#14F1D9]' : 'bg-white/5'}`} />
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      </div>
+
                       {/* Reasoning bar */}
                       <motion.div 
                         animate={{ opacity: [0.7, 1, 0.7] }}
@@ -2024,7 +2181,87 @@ export default function Dashboard() {
           )}
         </AnimatePresence>
 
+        {/* Floating Agent Chat Toggle Button */}
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] hover:from-[#A78BFA] hover:to-[#14F1D9] text-[#0A0A0F] shadow-lg shadow-[#7C5CFC]/25 flex items-center justify-center text-xl cursor-pointer hover:scale-105 active:scale-95 transition-all"
+          title="Open Agent Chat Console"
+        >
+          💬
+        </button>
+
+        {/* Agent Chat Terminal Drawer */}
+        <AnimatePresence>
+          {isChatOpen && (
+            <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
+              {/* Dismiss overlay click */}
+              <div className="absolute inset-0" onClick={() => setIsChatOpen(false)} />
+              
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="w-full max-w-sm bg-[#0E0E15]/95 backdrop-blur-md border-l border-white/10 h-full flex flex-col justify-between shadow-2xl relative z-10 text-left"
+              >
+                {/* Header */}
+                <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#07070B]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#14F1D9] animate-pulse font-bold text-xs">⚡</span>
+                    <h3 className="text-xs font-bold font-mono text-white uppercase tracking-wider font-display">ACTO Agent Console</h3>
+                  </div>
+                  <button onClick={() => setIsChatOpen(false)} className="text-xs text-[#9CA3AF] hover:text-white p-1 rounded-lg hover:bg-white/5">✕</button>
+                </div>
+                
+                {/* Chat Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+                  {chatMessages.map((msg, idx) => (
+                    <div key={idx} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`p-2.5 rounded-xl text-xs max-w-[85%] font-mono ${
+                        msg.sender === 'user'
+                          ? "bg-[#7C5CFC]/20 text-[#F1F0FF] border border-[#7C5CFC]/30 rounded-tr-none"
+                          : "bg-white/[0.03] text-[#14F1D9] border border-white/5 rounded-tl-none"
+                      }`}>
+                        {msg.text}
+                      </div>
+                      <span className="text-[8px] text-[#9CA3AF]/60 font-mono mt-1 px-1">
+                        {msg.sender === 'user' ? 'User' : 'Agent'} • {msg.time}
+                      </span>
+                    </div>
+                  ))}
+                  
+                  {isChatTyping && (
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/[0.01] border border-white/5 max-w-[120px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14F1D9] animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14F1D9] animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14F1D9] animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="text-[8px] font-mono text-[#9CA3AF]">Agent thinking...</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Input Form */}
+                <form onSubmit={handleChatSubmit} className="p-3 border-t border-white/5 bg-[#07070B]">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Type intent command..."
+                      className="flex-1 px-3 py-2 rounded-lg bg-[#0A0A0F] border border-white/10 text-xs text-white focus:outline-none focus:border-[#7C5CFC] font-mono"
+                    />
+                    <button type="submit" className="px-3 bg-[#7C5CFC] hover:bg-[#A78BFA] text-[#0A0A0F] font-bold text-xs rounded-lg transition-all active:scale-95 cursor-pointer">
+                      Send
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
       </main>
     </div>
   );
 }
+

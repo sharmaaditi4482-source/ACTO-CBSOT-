@@ -99,11 +99,29 @@ let userPreferences = {
 async function startServer() {
   const app = express();
   app.use(express.json());
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || '3000', 10);
 
   // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+  app.get("/api/health", async (req, res) => {
+    const hasApiKey = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY";
+    if (!hasApiKey) {
+      return res.json({ status: "ok", gemini: "disabled" });
+    }
+    try {
+      const client = getGeminiClient();
+      await client.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: "test",
+      });
+      res.json({ status: "ok", gemini: "active" });
+    } catch (e: any) {
+      const msg = (e.message || "").toLowerCase();
+      if (msg.includes("quota") || msg.includes("exhausted") || msg.includes("429")) {
+        res.json({ status: "ok", gemini: "quota_exceeded" });
+      } else {
+        res.json({ status: "ok", gemini: "error", error: e.message });
+      }
+    }
   });
 
   // GET Deadlines
@@ -217,7 +235,7 @@ async function startServer() {
     if (hasApiKey) {
       try {
         const client = getGeminiClient();
-        
+
         let playbookPromptModifier = "";
         if (playbook === "negotiate") {
           playbookPromptModifier = "Draft a formal, highly diplomatic, or professional delay resolution/email extension request explaining the issue politely.";
@@ -259,7 +277,7 @@ async function startServer() {
         `;
 
         const response = await client.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: "gemini-2.0-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
@@ -515,7 +533,7 @@ async function startServer() {
     try {
       const client = getGeminiClient();
       const response = await client.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.0-flash",
         contents: `Analyze this deadline crisis and draft a solution: "${prompt}".
         Return JSON matching this schema:
         {
@@ -609,7 +627,7 @@ async function startServer() {
         `;
 
         const response = await client.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: "gemini-2.0-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
@@ -651,27 +669,104 @@ async function startServer() {
       }
     }
 
-    // Default simulation fallback
-    const mockVoiceTask = {
+    // Smart local voice parser — extracts meaning from the submitted text
+    const lower = text.toLowerCase();
+
+    // ── Category detection ──────────────────────────────────────────────────
+    let category = "personal";
+    if (/\b(lab|assignment|exam|professor|lecture|course|homework|study|class|college|university|project|submit|grade|report|professor|coursework|quiz|tutorial)\b/.test(lower)) {
+      category = "study";
+    } else if (/\b(client|meeting|standup|sync|deadline|proposal|presentation|manager|team|sprint|deploy|code|pull request|review|invoice|project|work|office|stakeholder|deliverable|report|contract)\b/.test(lower)) {
+      category = "work";
+    } else if (/\b(bill|payment|rent|tax|finance|invoice|bank|insurance|loan|budget|expense|subscription|salary)\b/.test(lower)) {
+      category = "finance";
+    }
+
+    // ── Urgency detection ───────────────────────────────────────────────────
+    let urgencyScore = 72;
+    if (/\b(urgent|immediately|asap|emergency|critical|right now|today|overdue|missed|late|crisis|deadline|now|quickly|hurry)\b/.test(lower)) {
+      urgencyScore = 92;
+    } else if (/\b(tomorrow|soon|shortly|next hour|tonight)\b/.test(lower)) {
+      urgencyScore = 82;
+    } else if (/\b(next week|next month|eventually|later)\b/.test(lower)) {
+      urgencyScore = 55;
+    }
+
+    // ── Due time estimation ─────────────────────────────────────────────────
+    let dueOffsetMs = 60 * 60 * 1000; // default 1 hour
+    if (/\b(today|tonight|right now|asap|immediately|now)\b/.test(lower)) {
+      dueOffsetMs = 2 * 60 * 60 * 1000;
+    } else if (/\b(tomorrow)\b/.test(lower)) {
+      dueOffsetMs = 24 * 60 * 60 * 1000;
+    } else if (/\b(next week)\b/.test(lower)) {
+      dueOffsetMs = 7 * 24 * 60 * 60 * 1000;
+    }
+
+    // ── Contact extraction ──────────────────────────────────────────────────
+    // Look for patterns like "with <Name>" or "to <Name>" or "for <Name>"
+    let contactName = "Task Contact";
+    let contactEmail = "contact@example.com";
+    const contactMatch = text.match(/\b(?:with|to|for|email|message|ping|call|tell|notify|update|meet|sync with)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)/);
+    if (contactMatch) {
+      contactName = contactMatch[1];
+      // Generate a plausible email from the extracted name
+      const nameParts = contactName.toLowerCase().split(" ");
+      const domains = ["gmail.com", "company.com", "work.io", "team.org", "vibe-studios.com", "university.edu"];
+      const domain = domains[Math.floor(Math.random() * domains.length)];
+      contactEmail = nameParts.join(".") + "@" + domain;
+    } else {
+      // Category-based fallback contacts
+      const fallbackContacts: Record<string, { name: string; email: string }> = {
+        study: { name: "Professor", email: "professor@university.edu" },
+        work: { name: "Team Lead", email: "teamlead@company.com" },
+        finance: { name: "Finance Office", email: "finance@company.com" },
+        personal: { name: "Contact", email: "contact@gmail.com" }
+      };
+      contactName = fallbackContacts[category].name;
+      contactEmail = fallbackContacts[category].email;
+    }
+
+    // ── Title generation ────────────────────────────────────────────────────
+    // Identify action verb and key subject from the text
+    let title = "Voice Task";
+    const actionVerbs = ["reschedule", "send", "submit", "draft", "email", "call", "finish", "complete", "file", "fix", "review", "prepare", "write", "create", "update", "notify", "ping", "remind", "check", "upload", "book"];
+    for (const verb of actionVerbs) {
+      if (lower.includes(verb)) {
+        // Capitalise verb and append a short subject slice
+        const verbIdx = lower.indexOf(verb);
+        const afterVerb = text.slice(verbIdx + verb.length).trim().slice(0, 50);
+        title = verb.charAt(0).toUpperCase() + verb.slice(1) + (afterVerb ? ": " + afterVerb : "");
+        // Trim to max 60 chars for display
+        if (title.length > 60) title = title.slice(0, 57) + "...";
+        break;
+      }
+    }
+    // If no verb matched, use the first 60 chars of the text itself
+    if (title === "Voice Task") {
+      title = text.slice(0, 60) + (text.length > 60 ? "..." : "");
+    }
+
+    const smartVoiceTask = {
       id: Math.random().toString(36).substr(2, 9),
-      title: "Rescheduled Meeting with Priya Patel",
-      description: `Auto-generated voice trigger: "${text}"`,
-      dueAt: new Date(Date.now() + 90 * 60 * 1000).toISOString(),
+      title,
+      description: `Voice directive captured: "${text}". ACTO has parsed your intent and created this task automatically.`,
+      dueAt: new Date(Date.now() + dueOffsetMs).toISOString(),
       source: "manual",
       sourceName: "Voice Input",
-      urgencyScore: 89,
+      urgencyScore,
       status: "active",
-      contactName: "Priya Patel",
-      contactEmail: "priya.patel@vibe-studios.com",
-      category: "work"
+      contactName,
+      contactEmail,
+      category
     };
 
-    deadlines.push(mockVoiceTask);
-    res.json({ success: true, deadline: mockVoiceTask });
+    deadlines.push(smartVoiceTask);
+    res.json({ success: true, deadline: smartVoiceTask });
   });
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  const isProduction = process.env.NODE_ENV === "production";
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

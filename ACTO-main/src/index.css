@@ -257,7 +257,7 @@ html.light .recharts-cartesian-grid-vertical line {
   stroke: rgba(15, 14, 23, 0.08) !important;
 }
 
-html.light .bg-black/40 {
+html.light .bg-black\/40 {
   background-color: rgba(255, 255, 255, 0.6) !important;
 }
 
@@ -323,5 +323,64 @@ html.light .acto-logo-text {
   -webkit-background-clip: text !important;
   background-clip: text !important;
 }
+
+/* Premium Dashboard UI Enhancements */
+.glass-card {
+  background: rgba(14, 14, 21, 0.65) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+html.light .glass-card {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04) !important;
+}
+
+.glow-border-cyan {
+  border-color: rgba(20, 241, 217, 0.3) !important;
+  box-shadow: 0 0 12px rgba(20, 241, 217, 0.15) !important;
+}
+
+.glow-border-purple {
+  border-color: rgba(124, 92, 252, 0.3) !important;
+  box-shadow: 0 0 12px rgba(124, 92, 252, 0.15) !important;
+}
+
+.pulse-glow-cyan {
+  animation: pulseGlowCyan 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlowCyan {
+  0%, 100% { box-shadow: 0 0 4px rgba(20, 241, 217, 0.2); border-color: rgba(20, 241, 217, 0.2); }
+  50% { box-shadow: 0 0 14px rgba(20, 241, 217, 0.5); border-color: rgba(20, 241, 217, 0.5); }
+}
+
+/* Custom Scrollbar Styles for High-Density scroll panes */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(124, 92, 252, 0.15);
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 241, 217, 0.3);
+}
+
+html.light .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.1);
+}
+
 
 
