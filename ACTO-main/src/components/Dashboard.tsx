@@ -40,7 +40,7 @@ export default function Dashboard() {
     }
     return 'feed';
   });
-  
+
   // App States
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [actions, setActions] = useState<AgentAction[]>([]);
@@ -113,7 +113,7 @@ export default function Dashboard() {
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
-    
+
     const userMsg = chatInput;
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setChatMessages(prev => [...prev, { sender: 'user', text: userMsg, time: timeStr }]);
@@ -302,7 +302,7 @@ export default function Dashboard() {
 
   const handleExecuteAction = async (actionId: string) => {
     if (!currentAction) return;
-    
+
     // Optimistic Update
     setCurrentAction(prev => prev ? { ...prev, status: "executing" } : null);
 
@@ -313,7 +313,7 @@ export default function Dashboard() {
         body: JSON.stringify({ actionId, editedSubject, editedBody })
       });
       await res.json();
-      
+
       // Close review modal if open
       setIsReviewModalOpen(false);
 
@@ -387,7 +387,7 @@ export default function Dashboard() {
       setNewDesc("");
       setNewDue("");
       refreshData();
-      
+
       // Auto select the new deadline
       handleReviewAction(data);
     } catch (err) {
@@ -456,7 +456,7 @@ export default function Dashboard() {
     setVoiceInput("");
     let currentText = "";
     let i = 0;
-    
+
     showToast("✨ Simulating voice dictate typing...");
     const interval = setInterval(() => {
       if (i < phrase.length) {
@@ -473,7 +473,7 @@ export default function Dashboard() {
 
   // Connections Toggle
   const handleToggleConnection = (id: string) => {
-    setConnections(connections.map(c => 
+    setConnections(connections.map(c =>
       c.id === id ? { ...c, connected: !c.connected, email: !c.connected ? "arjun.mehta@university.edu" : undefined } : c
     ));
   };
@@ -513,9 +513,9 @@ export default function Dashboard() {
           category: "work"
         }
       ];
-      
+
       const chosen = mockCrises[Math.floor(Math.random() * mockCrises.length)];
-      
+
       const res = await fetch("/api/deadlines", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -559,21 +559,21 @@ export default function Dashboard() {
 
   const cardVariants = {
     hidden: { opacity: 0, y: 15, scale: 0.98 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
+    show: {
+      opacity: 1,
+      y: 0,
       scale: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 110, 
-        damping: 14 
-      } 
+      transition: {
+        type: "spring",
+        stiffness: 110,
+        damping: 14
+      }
     }
   };
 
   return (
     <div className="h-screen w-screen bg-[#0A0A0F] text-[#F1F0FF] flex flex-col md:flex-row font-sans overflow-hidden selection:bg-[#7C5CFC]/30 bg-grid-blueprint relative">
-      
+
       {/* Background Particles (Same as Landing Page) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 15 }).map((_, i) => {
@@ -581,14 +581,14 @@ export default function Dashboard() {
           const left = (i * 7.3) % 100;
           const speed = 7 + (i % 4); // 7s to 10s
           const delay = (i % 3) * 1.8;
-          
+
           const colors = ["#FFFFFF", "#14F1D9", "#7C5CFC"];
           const color = colors[i % colors.length];
-          const glowColor = color === "#FFFFFF" 
-            ? "rgba(255, 255, 255, 0.6)" 
-            : color === "#14F1D9" 
-            ? "rgba(20, 241, 217, 0.6)" 
-            : "rgba(124, 92, 252, 0.6)";
+          const glowColor = color === "#FFFFFF"
+            ? "rgba(255, 255, 255, 0.6)"
+            : color === "#14F1D9"
+              ? "rgba(20, 241, 217, 0.6)"
+              : "rgba(124, 92, 252, 0.6)";
 
           return (
             <div
@@ -617,12 +617,12 @@ export default function Dashboard() {
       <aside className="w-full md:w-64 glass-card border-b md:border-b-0 md:border-r border-white/5 p-4 flex flex-col justify-between shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.15)]">
         <div className="space-y-6">
           <div className="flex items-center justify-between gap-1">
-            <div 
-              className="flex items-center gap-2 text-lg font-display font-bold tracking-tight select-none cursor-pointer shrink-0" 
-              onClick={() => navigate("/")} 
+            <div
+              className="flex items-center gap-2 text-lg font-display font-bold tracking-tight select-none cursor-pointer shrink-0"
+              onClick={() => navigate("/")}
               title="Go to Home"
             >
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.1, rotate: 10 }}
                 className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C5CFC] to-[#14F1D9] flex items-center justify-center text-[#0A0A0F] text-xs font-bold shadow-[0_0_10px_rgba(124,92,252,0.4)] shrink-0"
               >
@@ -653,11 +653,10 @@ export default function Dashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
-                  activeTab === tab.id
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${activeTab === tab.id
                     ? "bg-[#7C5CFC]/15 text-[#A78BFA] border-l-2 border-[#7C5CFC]"
                     : "text-[#9CA3AF] hover:text-[#F1F0FF] hover:bg-white/[0.02]"
-                }`}
+                  }`}
               >
                 <span>{tab.emoji}</span>
                 <span>{tab.label}</span>
@@ -671,7 +670,7 @@ export default function Dashboard() {
 
         {/* User Info & Logout Area */}
         <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-1.5 p-1">
-          <div 
+          <div
             onClick={handleProfileCapsuleClick}
             className="flex items-center gap-2 cursor-pointer hover:bg-white/[0.04] p-1.5 rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5 active:scale-95 flex-1 min-w-0"
             title="Edit Profile Configuration (Arjun Mehta)"
@@ -701,7 +700,7 @@ export default function Dashboard() {
 
       {/* Main High-Density Workspace */}
       <main className="flex-1 flex flex-col min-h-0 bg-transparent relative z-10">
-        
+
         {/* Top Mini Control Header */}
         <header className="flex justify-between items-center px-6 py-3 border-b border-white/5 bg-[#0E0E15]/50 backdrop-blur-md">
           <div className="flex items-center gap-3">
@@ -743,29 +742,28 @@ export default function Dashboard() {
             </div>
 
             {/* Gemini API Status Badge */}
-            <div 
+            <div
               className="flex items-center gap-2 px-3 py-1 bg-white/[0.03] border border-white/10 rounded-xl shadow-inner cursor-help"
               title={
-                geminiStatus === 'active' 
+                geminiStatus === 'active'
                   ? "Gemini API is active and running fine."
                   : geminiStatus === 'quota_exceeded'
-                  ? "Gemini API key is connected, but the daily free quota has been exhausted. ACTO is running on the local intelligent offline engine."
-                  : "Using simulated API mode."
+                    ? "Gemini API key is connected, but the daily free quota has been exhausted. ACTO is running on the local intelligent offline engine."
+                    : "Using simulated API mode."
               }
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                geminiStatus === 'active' 
-                  ? 'bg-[#14F1D9] animate-pulse' 
+              <span className={`w-1.5 h-1.5 rounded-full ${geminiStatus === 'active'
+                  ? 'bg-[#14F1D9] animate-pulse'
                   : geminiStatus === 'quota_exceeded'
-                  ? 'bg-amber-400 animate-pulse'
-                  : 'bg-red-400'
-              }`} />
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-red-400'
+                }`} />
               <span className="text-[9px] font-mono font-extrabold text-white uppercase tracking-wider">
-                {geminiStatus === 'active' 
-                  ? 'Gemini: Active' 
+                {geminiStatus === 'active'
+                  ? 'Gemini: Active'
                   : geminiStatus === 'quota_exceeded'
-                  ? 'Gemini: Quota Limit (Offline Fallback)'
-                  : 'Gemini: Simulator'}
+                    ? 'Gemini: Quota Limit (Offline Fallback)'
+                    : 'Gemini: Simulator'}
               </span>
             </div>
 
@@ -792,7 +790,7 @@ export default function Dashboard() {
         {/* FEED: High Density Tri-pane Layout */}
         {activeTab === 'feed' && (
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
-            
+
             {/* PANE 1: Compact Master Deadline List (lg:col-span-3) */}
             <div className="lg:col-span-3 flex flex-col min-h-0 bg-[#0D0D14]/30 overflow-y-auto p-4 space-y-3 scrollbar-thin">
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
@@ -841,7 +839,7 @@ export default function Dashboard() {
                   <div className="text-xs font-semibold">Feed completely clean.</div>
                 </div>
               ) : (
-                <motion.div 
+                <motion.div
                   variants={containerVariants}
                   initial="hidden"
                   animate="show"
@@ -861,13 +859,12 @@ export default function Dashboard() {
                         whileHover={{ scale: 1.01, x: 2, borderColor: "rgba(124, 92, 252, 0.5)" }}
                         whileTap={{ scale: 0.98 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className={`p-4 rounded-xl border text-left cursor-pointer transition-all duration-200 relative overflow-hidden ${
-                          isSelected
+                        className={`p-4 rounded-xl border text-left cursor-pointer transition-all duration-200 relative overflow-hidden ${isSelected
                             ? "bg-[#7C5CFC]/15 border-[#7C5CFC] shadow-lg shadow-[#7C5CFC]/10"
                             : dl.status === 'done' || dl.status === 'recovered'
-                            ? "bg-white/[0.01] border-white/5 opacity-40"
-                            : "bg-[#0E0E15]/85 border-white/10 hover:border-white/20 hover:bg-[#12121B]"
-                        }`}
+                              ? "bg-white/[0.01] border-white/5 opacity-40"
+                              : "bg-[#0E0E15]/85 border-white/10 hover:border-white/20 hover:bg-[#12121B]"
+                          }`}
                       >
                         {/* Selected Indicator strip */}
                         {isSelected && (
@@ -879,13 +876,12 @@ export default function Dashboard() {
                             <span className="text-sm">{dl.source === 'gmail' ? '📧' : dl.source === 'calendar' ? '📅' : dl.source === 'tasks' ? '✅' : '📝'}</span>
                             <span>{dl.title}</span>
                           </span>
-                          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded shrink-0 uppercase tracking-wider ${
-                            dl.status === 'done' || dl.status === 'recovered'
+                          <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded shrink-0 uppercase tracking-wider ${dl.status === 'done' || dl.status === 'recovered'
                               ? "bg-white/10 text-[#9CA3AF]"
                               : dl.urgencyScore > 85
-                              ? "bg-[#EF4444]/25 text-[#FF6B6B]"
-                              : "bg-[#7C5CFC]/25 text-[#C084FC]"
-                          }`}>
+                                ? "bg-[#EF4444]/25 text-[#FF6B6B]"
+                                : "bg-[#7C5CFC]/25 text-[#C084FC]"
+                            }`}>
                             {dl.category}
                           </span>
                         </div>
@@ -947,11 +943,10 @@ export default function Dashboard() {
                             key={p.id}
                             disabled={isSuggesting || selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'}
                             onClick={() => handleReviewAction(selectedDeadline, p.id)}
-                            className={`py-2 px-1.5 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer ${
-                              isPlaybookActive
+                            className={`py-2 px-1.5 rounded-lg border text-[10px] font-bold text-center transition-all cursor-pointer ${isPlaybookActive
                                 ? "bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] text-[#0A0A0F] border-transparent shadow-lg shadow-[#7C5CFC]/20"
                                 : "bg-[#0E0E15] hover:bg-[#12121B] text-white border-white/10 hover:border-white/20"
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {p.label}
                           </button>
@@ -990,18 +985,16 @@ export default function Dashboard() {
                           ].map((step, idx, arr) => (
                             <React.Fragment key={idx}>
                               <div className="flex flex-col items-center gap-1 flex-1">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[9px] ${
-                                  step.status === 'done'
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[9px] ${step.status === 'done'
                                     ? "bg-[#14F1D9] text-[#0A0A0F] shadow-[0_0_8px_rgba(20,241,217,0.4)]"
                                     : step.status === 'active'
-                                    ? "bg-[#7C5CFC] text-white animate-pulse"
-                                    : "bg-white/5 text-[#9CA3AF]"
-                                }`}>
+                                      ? "bg-[#7C5CFC] text-white animate-pulse"
+                                      : "bg-white/5 text-[#9CA3AF]"
+                                  }`}>
                                   {step.status === 'done' ? "✓" : idx + 1}
                                 </div>
-                                <span className={`text-[7px] md:text-[8px] text-center font-semibold scale-90 ${
-                                  step.status === 'done' ? "text-white" : step.status === 'active' ? "text-[#7C5CFC]" : "text-[#4B5563]"
-                                }`}>{step.label}</span>
+                                <span className={`text-[7px] md:text-[8px] text-center font-semibold scale-90 ${step.status === 'done' ? "text-white" : step.status === 'active' ? "text-[#7C5CFC]" : "text-[#4B5563]"
+                                  }`}>{step.label}</span>
                               </div>
                               {idx < arr.length - 1 && (
                                 <div className={`h-[1px] flex-1 ${step.status === 'done' ? 'bg-[#14F1D9]' : 'bg-white/5'}`} />
@@ -1012,7 +1005,7 @@ export default function Dashboard() {
                       </div>
 
                       {/* Reasoning bar */}
-                      <motion.div 
+                      <motion.div
                         animate={{ opacity: [0.7, 1, 0.7] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                         className="p-4 rounded-xl bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-xs text-[#A78BFA] leading-relaxed flex gap-2.5 shadow-md"
@@ -1060,9 +1053,9 @@ export default function Dashboard() {
                               </div>
                             </div>
                           </div>
-                          
+
                           {isCalendarScheduled ? (
-                            <motion.div 
+                            <motion.div
                               initial={{ opacity: 0, scale: 0.95 }}
                               animate={{ opacity: 1, scale: 1 }}
                               className="p-3 bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg text-center"
@@ -1114,7 +1107,7 @@ export default function Dashboard() {
                               {Object.values(outlineCompletedSteps).filter(Boolean).length} of 3 complete
                             </span>
                           </div>
-                          
+
                           <div className="space-y-2">
                             {[
                               { id: "step1", label: "Milestone 1: Resolve Core Pathways and Compile Check" },
@@ -1134,15 +1127,13 @@ export default function Dashboard() {
                                       showToast(`🎯 Task accomplished!`);
                                     }
                                   }}
-                                  className={`p-3 rounded-lg border text-xs font-bold flex items-center gap-3 cursor-pointer transition-all ${
-                                    isDone
+                                  className={`p-3 rounded-lg border text-xs font-bold flex items-center gap-3 cursor-pointer transition-all ${isDone
                                       ? "bg-[#14F1D9]/10 border-[#14F1D9]/30 text-[#14F1D9]/90 line-through"
                                       : "bg-[#0E0E15] hover:bg-[#12121B] border-white/5 text-white"
-                                  }`}
+                                    }`}
                                 >
-                                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                                    isDone ? "bg-[#14F1D9] border-[#14F1D9] text-[#0A0A0F]" : "border-white/30"
-                                  }`}>
+                                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${isDone ? "bg-[#14F1D9] border-[#14F1D9] text-[#0A0A0F]" : "border-white/30"
+                                    }`}>
                                     {isDone && "✓"}
                                   </div>
                                   <span>{step.label}</span>
@@ -1162,11 +1153,10 @@ export default function Dashboard() {
                           value={editedSubject}
                           onChange={(e) => setEditedSubject(e.target.value)}
                           disabled={selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'}
-                          className={`w-full px-4 py-3 rounded-xl border text-xs font-bold focus:outline-none transition-colors focus:ring-1 ${
-                            selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
+                          className={`w-full px-4 py-3 rounded-xl border text-xs font-bold focus:outline-none transition-colors focus:ring-1 ${selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
                               ? "bg-white/[0.01] border-white/5 text-[#9CA3AF] cursor-not-allowed"
                               : "bg-[#0E0E15] border-white/10 text-white focus:border-[#7C5CFC] focus:ring-[#7C5CFC]"
-                          }`}
+                            }`}
                           placeholder="Email Subject Line..."
                         />
                       </div>
@@ -1177,11 +1167,10 @@ export default function Dashboard() {
                           <label className="text-xs font-bold font-mono text-[#9CA3AF] uppercase tracking-wider block">
                             {activePlaybook === "outline" || activePlaybook === "shield" ? "Generated Protocol Guidelines" : "AI Generated Draft Body"}
                           </label>
-                          <span className={`text-[10px] font-mono font-bold ${
-                            selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
+                          <span className={`text-[10px] font-mono font-bold ${selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
                               ? "text-[#14F1D9] uppercase tracking-wider"
                               : "text-[#7C5CFC]"
-                          }`}>
+                            }`}>
                             {selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
                               ? "🔒 Dispatched & Archived in Ledger"
                               : "✓ Live Editable"}
@@ -1192,11 +1181,10 @@ export default function Dashboard() {
                             value={editedBody}
                             onChange={(e) => setEditedBody(e.target.value)}
                             disabled={selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'}
-                            className={`w-full p-4 rounded-xl text-xs font-mono font-medium leading-relaxed shadow-inner focus:outline-none focus:ring-1 ${
-                              selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
+                            className={`w-full p-4 rounded-xl text-xs font-mono font-medium leading-relaxed shadow-inner focus:outline-none focus:ring-1 ${selectedDeadline.status === 'done' || selectedDeadline.status === 'recovered'
                                 ? "bg-white/[0.01] border-white/5 text-[#9CA3AF] cursor-not-allowed"
                                 : "bg-[#0E0E15]/95 border-[#7C5CFC]/30 text-[#F1F0FF] focus:border-[#14F1D9] focus:ring-[#14F1D9]"
-                            }`}
+                              }`}
                             rows={8}
                             placeholder="Draft body content..."
                           />
@@ -1285,7 +1273,7 @@ export default function Dashboard() {
 
             {/* PANE 3: Compact Side widgets: Mini-Charts & Live Connections (lg:col-span-3) */}
             <div className="lg:col-span-3 flex flex-col min-h-0 bg-[#0E0E15]/40 overflow-y-auto p-4 space-y-5">
-              
+
               {/* Connected Status Modules */}
               <div className="space-y-2.5">
                 <span className="text-[10px] font-mono uppercase text-[#9CA3AF] tracking-wider block text-left">Connected Channels</span>
@@ -1294,11 +1282,10 @@ export default function Dashboard() {
                     <div
                       key={c.id}
                       onClick={() => handleToggleConnection(c.id)}
-                      className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${
-                        c.connected
+                      className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${c.connected
                           ? "bg-[#7C5CFC]/10 border-[#7C5CFC]/30 text-white"
                           : "bg-white/[0.01] border-white/5 text-[#4B5563]"
-                      }`}
+                        }`}
                     >
                       <div className="text-sm mb-0.5">{c.icon}</div>
                       <div className="text-[9px] font-semibold tracking-wide font-mono uppercase">
@@ -1418,8 +1405,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mt-2">
-                  <div 
-                    className={`h-full transition-all duration-500 ${deadlines.filter(d => d.status === 'missed').length > 0 ? "bg-red-500" : "bg-[#14F1D9]"}`} 
+                  <div
+                    className={`h-full transition-all duration-500 ${deadlines.filter(d => d.status === 'missed').length > 0 ? "bg-red-500" : "bg-[#14F1D9]"}`}
                     style={{ width: deadlines.filter(d => d.status === 'missed').length === 0 ? "5%" : deadlines.filter(d => d.status === 'missed').length === 1 ? "50%" : "100%" }}
                   />
                 </div>
@@ -1460,7 +1447,7 @@ export default function Dashboard() {
                   {deadlines.filter(d => d.status === 'missed').map((dl) => (
                     <div key={dl.id} className="p-5 rounded-xl bg-[#0E0E15]/95 border border-red-500/20 flex flex-col justify-between gap-5 shadow-lg relative overflow-hidden group hover:border-red-500/30 transition-all duration-200">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-[#EF4444]/5 rounded-full blur-2xl pointer-events-none" />
-                      
+
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-[#EF4444]/20 text-[#EF4444] uppercase tracking-wider font-mono">
@@ -1474,7 +1461,7 @@ export default function Dashboard() {
                           <h4 className="text-sm font-bold font-display text-white group-hover:text-red-400 transition-colors">{dl.title}</h4>
                           <p className="text-xs text-[#9CA3AF] mt-1.5 leading-relaxed">{dl.description}</p>
                         </div>
-                        
+
                         <div className="pt-2 border-t border-white/5 space-y-1.5">
                           <div className="flex justify-between text-[10px] font-mono">
                             <span className="text-[#9CA3AF]">Contact Target:</span>
@@ -1520,11 +1507,10 @@ export default function Dashboard() {
                   onClick={toggleRecording}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg cursor-pointer transition-all duration-300 relative ${
-                    isRecording 
-                      ? 'bg-gradient-to-r from-[#EF4444] to-[#7C5CFC] shadow-[0_0_25px_rgba(239,68,68,0.5)]' 
+                  className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg cursor-pointer transition-all duration-300 relative ${isRecording
+                      ? 'bg-gradient-to-r from-[#EF4444] to-[#7C5CFC] shadow-[0_0_25px_rgba(239,68,68,0.5)]'
                       : 'bg-gradient-to-br from-[#7C5CFC]/20 to-[#14F1D9]/20 hover:from-[#7C5CFC]/30 hover:to-[#14F1D9]/30 border border-white/10 shadow-[0_0_15px_rgba(124,92,252,0.15)]'
-                  }`}
+                    }`}
                   title={isRecording ? "Stop Recording" : "Start Recording"}
                 >
                   {isRecording ? (
@@ -1590,7 +1576,7 @@ export default function Dashboard() {
                     </button>
                   )}
                 </div>
-                
+
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -1700,8 +1686,8 @@ export default function Dashboard() {
                       <Area type="monotone" dataKey="met" stroke="#14F1D9" strokeWidth={2.5} fillOpacity={0.15} fill="url(#colorMet)" />
                       <defs>
                         <linearGradient id="colorMet" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#14F1D9" stopOpacity={0.4}/>
-                          <stop offset="95%" stopColor="#14F1D9" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#14F1D9" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="#14F1D9" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                     </AreaChart>
@@ -1902,11 +1888,10 @@ export default function Dashboard() {
                     </div>
                     <button
                       onClick={() => handleToggleConnection(c.id)}
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
-                        c.connected
+                      className={`px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-all ${c.connected
                           ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
                           : "bg-[#7C5CFC]/20 text-[#A78BFA] hover:bg-[#7C5CFC]/30 shadow-[0_0_10px_rgba(124,92,252,0.1)]"
-                      }`}
+                        }`}
                     >
                       {c.connected ? "Revoke" : "Authorize"}
                     </button>
@@ -2109,7 +2094,7 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsReviewModalOpen(false)}
                     className="text-xs text-[#9CA3AF] hover:text-white p-1 hover:bg-white/5 rounded-lg transition-all"
                   >
@@ -2141,7 +2126,7 @@ export default function Dashboard() {
                       {isTyping ? "⌨️ ACTO typing..." : "✍️ Live editable"}
                     </span>
                   </div>
-                  
+
                   <div className="relative">
                     <textarea
                       value={typedBody}
@@ -2196,7 +2181,7 @@ export default function Dashboard() {
             <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
               {/* Dismiss overlay click */}
               <div className="absolute inset-0" onClick={() => setIsChatOpen(false)} />
-              
+
               <motion.div
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
@@ -2212,16 +2197,15 @@ export default function Dashboard() {
                   </div>
                   <button onClick={() => setIsChatOpen(false)} className="text-xs text-[#9CA3AF] hover:text-white p-1 rounded-lg hover:bg-white/5">✕</button>
                 </div>
-                
+
                 {/* Chat Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
                   {chatMessages.map((msg, idx) => (
                     <div key={idx} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                      <div className={`p-2.5 rounded-xl text-xs max-w-[85%] font-mono ${
-                        msg.sender === 'user'
+                      <div className={`p-2.5 rounded-xl text-xs max-w-[85%] font-mono ${msg.sender === 'user'
                           ? "bg-[#7C5CFC]/20 text-[#F1F0FF] border border-[#7C5CFC]/30 rounded-tr-none"
                           : "bg-white/[0.03] text-[#14F1D9] border border-white/5 rounded-tl-none"
-                      }`}>
+                        }`}>
                         {msg.text}
                       </div>
                       <span className="text-[8px] text-[#9CA3AF]/60 font-mono mt-1 px-1">
@@ -2229,7 +2213,7 @@ export default function Dashboard() {
                       </span>
                     </div>
                   ))}
-                  
+
                   {isChatTyping && (
                     <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/[0.01] border border-white/5 max-w-[120px]">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#14F1D9] animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -2239,7 +2223,7 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Input Form */}
                 <form onSubmit={handleChatSubmit} className="p-3 border-t border-white/5 bg-[#07070B]">
                   <div className="flex gap-2">

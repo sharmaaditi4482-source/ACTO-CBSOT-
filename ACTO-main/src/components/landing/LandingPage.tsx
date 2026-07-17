@@ -10,14 +10,14 @@ const Particles = () => (
       const left = Math.random() * 100;
       const speed = 4 + Math.random() * 5; // 4s to 9s
       const delay = Math.random() * 6;
-      
+
       const colors = ["#FFFFFF", "#14F1D9", "#7C5CFC"];
       const color = colors[i % colors.length];
-      const glowColor = color === "#FFFFFF" 
-        ? "rgba(255, 255, 255, 0.8)" 
-        : color === "#14F1D9" 
-        ? "rgba(20, 241, 217, 0.8)" 
-        : "rgba(124, 92, 252, 0.8)";
+      const glowColor = color === "#FFFFFF"
+        ? "rgba(255, 255, 255, 0.8)"
+        : color === "#14F1D9"
+          ? "rgba(20, 241, 217, 0.8)"
+          : "rgba(124, 92, 252, 0.8)";
 
       return (
         <div
@@ -53,8 +53,8 @@ const FloatingCard = ({ delay, className, initialY, children }: { delay: number;
       dragConstraints={{ left: -120, right: 120, top: -120, bottom: 120 }}
       dragElastic={0.2}
       dragTransition={{ bounceStiffness: 500, bounceDamping: 20 }}
-      whileHover={{ 
-        scale: 1.05, 
+      whileHover={{
+        scale: 1.05,
         y: initialY[1] * 0.8,
         boxShadow: "0 25px 50px -12px rgba(124, 92, 252, 0.45)",
         borderColor: "rgba(124, 92, 252, 0.6)"
@@ -176,7 +176,7 @@ export default function LandingPage() {
         body: JSON.stringify({ prompt: promptToUse })
       });
       const data = await response.json();
-      
+
       setDemoState('drafting');
       setDemoResult({
         subject: data.draftSubject || "Autonomous Execution Task",
@@ -217,9 +217,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-[#F1F0FF] overflow-x-hidden font-sans selection:bg-[#7C5CFC]/30 bg-grid-blueprint relative">
-      
+
       {/* Navbar with Frosted Glass effect */}
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -228,7 +228,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           {/* Logo with subtle glow and lightning bolt icon */}
           <div className="flex items-center gap-3 text-2xl font-display font-bold tracking-tight select-none">
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.1, rotate: 10 }}
               className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C5CFC] to-[#14F1D9] flex items-center justify-center text-[#0A0A0F] font-bold shadow-[0_0_15px_rgba(124,92,252,0.4)]"
             >
@@ -262,25 +262,23 @@ export default function LandingPage() {
               {theme === "dark" ? "🌙" : "☀️"}
             </motion.button>
 
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                localStorage.setItem('acto_active_tab', 'settings');
-                navigate("/dashboard");
+                navigate("/login");
               }}
               className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-white/5 hover:bg-white/15 text-lg transition-all duration-200 shadow-md cursor-pointer pointer-events-auto"
               title="System Settings"
             >
               ⚙️
             </motion.button>
-             <motion.button 
+            <motion.button
               whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(20, 241, 217, 0.6)" }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                localStorage.setItem('acto_active_tab', 'feed');
-                navigate("/dashboard");
-              }} 
+                navigate("/login");
+              }}
               className="relative overflow-hidden px-6 py-2.5 bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] text-[#0A0A0F] font-bold rounded-full text-sm animate-pulse-glow"
             >
               <div className="absolute inset-0 w-full h-full bg-white/20 translate-x-[-100%] animate-shimmer" />
@@ -293,11 +291,11 @@ export default function LandingPage() {
       {/* Cursor Follower Glow Effect */}
       <motion.div
         className="fixed top-0 left-0 w-96 h-96 rounded-full bg-[#7C5CFC]/10 blur-[130px] pointer-events-none z-50"
-        style={{ 
-          x: useSpring(mouseX, { stiffness: 60, damping: 25 }), 
-          y: useSpring(mouseY, { stiffness: 60, damping: 25 }), 
-          marginLeft: -192, 
-          marginTop: -192 
+        style={{
+          x: useSpring(mouseX, { stiffness: 60, damping: 25 }),
+          y: useSpring(mouseY, { stiffness: 60, damping: 25 }),
+          marginLeft: -192,
+          marginTop: -192
         }}
       />
 
@@ -308,16 +306,16 @@ export default function LandingPage() {
 
         {/* 4 Premium Glassmorphism Floating Cards in Background */}
         {/* Card 1: GMAIL_AUTODRAFT */}
-        <FloatingCard 
-          delay={0} 
-          initialY={[0, -40, 0]} 
+        <FloatingCard
+          delay={0}
+          initialY={[0, -40, 0]}
           className="hidden lg:block top-[22%] left-[4%] w-80 border-[#7C5CFC]/30 text-[#F1F0FF] select-none scale-90 xl:scale-100 -rotate-3 hover:border-[#14F1D9]"
         >
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-mono font-bold text-[#14F1D9] tracking-wider flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#14F1D9] animate-ping" />
               📧 GMAIL_AUTODRAFT
-            </span> 
+            </span>
             <span className="text-[10px] font-semibold bg-[#14F1D9]/20 text-[#14F1D9] px-2.5 py-0.5 rounded-full border border-[#14F1D9]/30">99% CONF</span>
           </div>
           <div className="text-sm font-semibold tracking-tight">Investor Q3 Deck Follow-up</div>
@@ -328,16 +326,16 @@ export default function LandingPage() {
         </FloatingCard>
 
         {/* Card 2: CRISIS RECOVERY (Red Border Glow) */}
-        <FloatingCard 
-          delay={1.8} 
-          initialY={[0, -60, 0]} 
+        <FloatingCard
+          delay={1.8}
+          initialY={[0, -60, 0]}
           className="hidden lg:block top-[24%] right-[4%] w-96 border-red-500/30 text-[#F1F0FF] select-none scale-90 xl:scale-100 rotate-2 shadow-[0_15px_30px_rgba(239,68,68,0.15)] hover:border-red-500"
         >
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-mono font-bold text-red-400 tracking-wider flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
               🚨 CRISIS RECOVERY
-            </span> 
+            </span>
             <span className="text-[10px] font-semibold bg-red-500/20 text-red-400 px-2.5 py-0.5 rounded-full border border-red-500/30">OVERDUE</span>
           </div>
           <div className="text-sm font-semibold tracking-tight">CS301 Architecture Report</div>
@@ -347,16 +345,16 @@ export default function LandingPage() {
         </FloatingCard>
 
         {/* Card 3: CALENDAR_SYNC */}
-        <FloatingCard 
-          delay={3.2} 
-          initialY={[0, 40, 0]} 
+        <FloatingCard
+          delay={3.2}
+          initialY={[0, 40, 0]}
           className="hidden lg:block top-[62%] left-[6%] w-72 border-purple-500/20 text-[#F1F0FF] select-none scale-85 xl:scale-95 rotate-3 hover:border-purple-400"
         >
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs font-mono font-bold text-[#7C5CFC] tracking-wider flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFC] animate-ping" />
               📅 CALENDAR_SYNC
-            </span> 
+            </span>
             <span className="text-[10px] font-semibold bg-[#7C5CFC]/20 text-[#A78BFA] px-2.5 py-0.5 rounded-full border border-[#7C5CFC]/30">1-TAP ✓</span>
           </div>
           <div className="text-sm font-semibold tracking-tight">Reschedule Design Standup</div>
@@ -364,16 +362,16 @@ export default function LandingPage() {
         </FloatingCard>
 
         {/* Card 4: SLACK_DISPATCH */}
-        <FloatingCard 
-          delay={2.5} 
-          initialY={[0, -50, 0]} 
+        <FloatingCard
+          delay={2.5}
+          initialY={[0, -50, 0]}
           className="hidden lg:block top-[58%] right-[5%] w-80 border-cyan-500/20 text-[#F1F0FF] select-none scale-85 xl:scale-95 -rotate-2 hover:border-cyan-400"
         >
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs font-mono font-bold text-[#14F1D9] tracking-wider flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
               💬 SLACK_DISPATCH
-            </span> 
+            </span>
             <span className="text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 px-2.5 py-0.5 rounded-full border border-cyan-500/20">READY</span>
           </div>
           <div className="text-sm font-semibold tracking-tight">UX Audit Sign-off Request</div>
@@ -383,9 +381,9 @@ export default function LandingPage() {
 
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-24 z-10">
-        
+
         {/* Startup Showcase Badge */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
@@ -398,7 +396,7 @@ export default function LandingPage() {
         {/* Hero Headline */}
         <div className="max-w-5xl mx-auto mb-8 relative">
           {/* Big glowing orb behind the headline */}
-          <div 
+          <div
             style={{
               position: "absolute",
               width: "600px",
@@ -415,17 +413,17 @@ export default function LandingPage() {
             }}
           />
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-6xl md:text-[110px] font-display font-bold tracking-tight leading-[0.9] text-white"
           >
             Your deadlines.<br />
-            <motion.span 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              transition={{ delay: 0.4, duration: 1, ease: "easeOut" }} 
+            <motion.span
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
               className="block mt-4"
               style={{
                 background: "linear-gradient(90deg, #7C5CFC, #14F1D9, #7C5CFC)",
@@ -442,7 +440,7 @@ export default function LandingPage() {
         </div>
 
         {/* Hero Subtext */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
@@ -452,26 +450,25 @@ export default function LandingPage() {
         </motion.p>
 
         {/* Call to Action Buttons */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
           className="flex flex-col sm:flex-row gap-5 justify-center items-center mb-6"
         >
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 0 35px rgba(20, 241, 217, 0.7)" }}
             whileTap={{ scale: 0.97 }}
             onClick={() => {
-              localStorage.setItem('acto_active_tab', 'feed');
-              navigate("/dashboard");
-            }} 
+              navigate("/login");
+            }}
             className="relative overflow-hidden px-10 py-5 bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] text-[#0A0A0F] font-black rounded-full shadow-[0_0_25px_rgba(124,92,252,0.4)] text-lg tracking-wider"
           >
             <div className="absolute inset-0 w-full h-full bg-white/20 translate-x-[-100%] animate-shimmer" />
             ⚡ GET STARTED FREE
           </motion.button>
-          
-          <motion.button 
+
+          <motion.button
             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.12)" }}
             whileTap={{ scale: 0.97 }}
             onClick={() => document.getElementById("sandbox")?.scrollIntoView({ behavior: 'smooth' })}
@@ -482,7 +479,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Value Trust Seals */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.8 }}
@@ -499,7 +496,7 @@ export default function LandingPage() {
       {/* PLATFORMS INTEGRATIONS & METRIC BANNER */}
       <section id="grid" className="py-16 border-t border-b border-white/5 bg-[#07070B]/90 relative z-10">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-8 items-center">
-          
+
           {/* Neural Engine Badge */}
           <div className="md:col-span-4 flex items-center gap-3">
             <span className="w-3 h-3 rounded-full bg-[#14F1D9] animate-ping" />
@@ -541,7 +538,7 @@ export default function LandingPage() {
 
       {/* THE AUTONOMOUS WORKFLOW (How ACTO Eliminates Deadline Stress) */}
       <section id="how-it-works" className="py-32 max-w-7xl mx-auto px-6 relative z-10 scroll-mt-20">
-        
+
         {/* Centered Monospace header */}
         <div className="text-center mb-20">
           <div className="text-[#14F1D9] font-mono font-bold tracking-widest text-xs mb-3">
@@ -554,9 +551,9 @@ export default function LandingPage() {
 
         {/* 3 Step-by-Step Cards */}
         <div className="grid md:grid-cols-3 gap-8">
-          
+
           {/* Card 1 */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -583,7 +580,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Card 2 */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -610,7 +607,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Card 3 */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -641,7 +638,7 @@ export default function LandingPage() {
 
       {/* LIVE INTERACTIVE SANDBOX SECTION */}
       <section id="sandbox" className="py-32 max-w-6xl mx-auto px-6 relative z-10 scroll-mt-20">
-        
+
         {/* Sandbox Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14F1D9]/10 border border-[#14F1D9]/30 text-[#14F1D9] text-xs font-mono mb-4 shadow-[0_0_15px_rgba(20,241,217,0.15)]">
@@ -658,17 +655,17 @@ export default function LandingPage() {
 
         {/* Sandbox Glass Container */}
         <div className="rounded-3xl border border-white/10 bg-[#0A0A0F]/60 backdrop-blur-xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
-          
+
           {/* Text Area & Generate Button Container */}
           <div className="relative">
-            <textarea 
-              value={demoInput} 
-              onChange={(e) => setDemoInput(e.target.value)} 
+            <textarea
+              value={demoInput}
+              onChange={(e) => setDemoInput(e.target.value)}
               className="w-full h-36 px-6 py-5 rounded-2xl bg-[#07070B] border border-white/10 focus:border-[#14F1D9] text-white text-lg font-light focus:outline-none transition-colors placeholder-[#9CA3AF]/40 resize-none pr-44"
               placeholder="Describe a deadline crisis (e.g. Need extension on Q4 audit)..."
             />
             <div className="absolute right-4 bottom-4">
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleRunDemo()}
@@ -684,7 +681,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center gap-3 mt-5">
             <span className="text-xs font-mono text-[#7C5CFC] tracking-wider uppercase font-bold">// QUICK TRY:</span>
             {quickTries.map((tryItem, idx) => (
-              <button 
+              <button
                 key={idx}
                 onClick={() => handleRunDemo(tryItem.value)}
                 className="text-xs px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-[#14F1D9]/40 text-[#F1F0FF] hover:text-[#14F1D9] transition-all duration-300"
@@ -702,7 +699,7 @@ export default function LandingPage() {
 
             <AnimatePresence mode="wait">
               {demoState === 'idle' && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -713,7 +710,7 @@ export default function LandingPage() {
               )}
 
               {(demoState === 'scanning' || demoState === 'drafting') && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -727,7 +724,7 @@ export default function LandingPage() {
               )}
 
               {demoState === 'ready' && demoResult && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
@@ -735,7 +732,7 @@ export default function LandingPage() {
                 >
                   {/* Decorative glowing accent */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-2xl rounded-full" />
-                  
+
                   {/* Card header */}
                   <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5">
                     <div className="flex items-center gap-2">
@@ -771,16 +768,15 @@ export default function LandingPage() {
 
                   {/* Approve action dispatch simulator */}
                   <div className="mt-8 flex gap-4">
-                    <button 
+                    <button
                       onClick={() => {
-                        localStorage.setItem('acto_active_tab', 'feed');
-                        navigate("/dashboard");
+                        navigate("/login");
                       }}
                       className="flex-1 py-4 bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] text-[#0A0A0F] font-bold rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
                     >
                       🚀 APPROVE & EXECUTE
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setDemoState('idle'); setDemoResult(null); }}
                       className="px-6 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors"
                     >
@@ -799,10 +795,10 @@ export default function LandingPage() {
       {/* FINAL STOP LETTING DEADLINES WIN CTA */}
       <section className="py-40 text-center relative z-10 border-t border-white/5 bg-[#07070B]/40">
         <div className="max-w-4xl mx-auto px-6">
-          
+
           {/* Logo element badge centered */}
           <div className="flex justify-center mb-8">
-            <motion.div 
+            <motion.div
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.5 }}
               className="w-16 h-16 rounded-3xl bg-[#7C5CFC]/10 border-2 border-[#14F1D9]/40 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(124,92,252,0.3)]"
@@ -819,13 +815,12 @@ export default function LandingPage() {
             Don't be reminded. <span className="text-[#14F1D9] font-bold text-glow-teal">Be done.</span> Step into the autonomous workspace built for world-class founders.
           </p>
 
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 0 45px rgba(20, 241, 217, 0.8)" }}
             whileTap={{ scale: 0.97 }}
             onClick={() => {
-              localStorage.setItem('acto_active_tab', 'feed');
-              navigate("/dashboard");
-            }} 
+              navigate("/login");
+            }}
             className="px-12 py-6 bg-gradient-to-r from-[#7C5CFC] to-[#14F1D9] text-[#0A0A0F] font-black rounded-full text-xl shadow-[0_0_35px_rgba(124,92,252,0.5)] tracking-wider"
           >
             ⚡ START WITH ACTO — IT'S FREE →

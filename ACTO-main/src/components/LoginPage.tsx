@@ -97,8 +97,8 @@ export default function LoginPage() {
             color === "#FFFFFF"
               ? "rgba(255, 255, 255, 0.6)"
               : color === "#14F1D9"
-              ? "rgba(20, 241, 217, 0.6)"
-              : "rgba(124, 92, 252, 0.6)";
+                ? "rgba(20, 241, 217, 0.6)"
+                : "rgba(124, 92, 252, 0.6)";
           return (
             <div
               key={i}
@@ -137,9 +137,8 @@ export default function LoginPage() {
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  s === step ? "w-6 bg-[#7C5CFC]" : "w-2 bg-white/10"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${s === step ? "w-6 bg-[#7C5CFC]" : "w-2 bg-white/10"
+                  }`}
               />
             ))}
           </div>
@@ -276,11 +275,10 @@ export default function LoginPage() {
                   <div
                     key={conn.id}
                     onClick={() => toggleConnection(conn.id)}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between ${
-                      selectedConnections.includes(conn.id)
-                        ? "bg-[#7C5CFC]/10 border-[#7C5CFC]"
-                        : "bg-[#0A0A0F] border-white/5 hover:border-white/20"
-                    }`}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all duration-300 flex items-center justify-between ${selectedConnections.includes(conn.id)
+                      ? "bg-[#7C5CFC]/10 border-[#7C5CFC]"
+                      : "bg-[#0A0A0F] border-white/5 hover:border-white/20"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{conn.emoji}</span>
@@ -290,11 +288,10 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                        selectedConnections.includes(conn.id)
-                          ? "bg-[#14F1D9] border-[#14F1D9] text-[#0A0A0F]"
-                          : "border-white/20"
-                      }`}
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${selectedConnections.includes(conn.id)
+                        ? "bg-[#14F1D9] border-[#14F1D9] text-[#0A0A0F]"
+                        : "border-white/20"
+                        }`}
                     >
                       {selectedConnections.includes(conn.id) && "✓"}
                     </div>
